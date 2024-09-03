@@ -141,3 +141,4 @@ CREATE TABLE Film (
 			INNER JOIN director d
 			ON film.director_id = d.id
 			WHERE score > 6 AND year > 1980
+
