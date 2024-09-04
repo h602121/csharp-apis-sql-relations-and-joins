@@ -24,6 +24,7 @@ CREATE TABLE Film (
 	name VARCHAR(100) NOT NULL,
 	email VARCHAR(100) NOT NULL
   );
+
   CREATE TABLE director (
 	id serial primary key,
 	name VARCHAR(100) NOT NULL,
@@ -141,4 +142,202 @@ CREATE TABLE Film (
 			INNER JOIN director d
 			ON film.director_id = d.id
 			WHERE score > 6 AND year > 1980
+
+Extension 1:
+
+CREATE table Person(
+	id serial primary key,
+  name VARCHAR(100) NOT NULL,
+  birth date,
+  email VARCHAR(100),
+  country VARCHAR(100)
+);
+
+
+CREATE table writer(
+	id serial primary key,
+  	person_id INTEGER,
+	movie_id INTEGER
+);
+
+CREATE table star(
+	id serial primary key,
+  	person_id INTEGER,
+	movie_id INTEGER
+);
+
+CREATE table director(
+	id serial primary key,
+  	person_id INTEGER,
+	movie_id INTEGER
+);
+
+CREATE table movie(
+	id serial primary key,
+	title VARCHAR(100),
+	year INTEGER,
+	genre VARCHAR(100),
+	score INTEGER
+);
+
+
+ALTER table director
+  ADD CONSTRAINT person_fk FOREIGN KEY(person_id) REFERENCES person(id),
+  ADD CONSTRAINT movie_fk FOREIGN KEY(movie_id) REFERENCES movie(id)
+
+ALTER table writer
+  ADD CONSTRAINT person_fk FOREIGN KEY(person_id) REFERENCES person(id),
+  ADD CONSTRAINT movie_fk FOREIGN KEY(movie_id) REFERENCES movie(id)
+
+ALTER table star
+  ADD CONSTRAINT person_fk FOREIGN KEY(person_id) REFERENCES person(id),
+  ADD CONSTRAINT movie_fk FOREIGN KEY(movie_id) REFERENCES movie(id)
+
+INSERT INTO Person (name, birth, email, country) VALUES
+('Christopher Nolan', '1970-07-30', 'nolan@example.com', 'United Kingdom'),
+('Quentin Tarantino', '1963-03-27', 'tarantino@example.com', 'United States'),
+('Leonardo DiCaprio', '1974-11-11', 'leo@example.com', 'United States'),
+('Emma Stone', '1988-11-06', 'emma@example.com', 'United States'),
+('Martin Scorsese', '1942-11-17', 'scorsese@example.com', 'United States'),
+('Natalie Portman', '1981-06-09', 'natalie@example.com', 'United States'),
+('Ridley Scott', '1937-11-30', 'ridley@example.com', 'United Kingdom'),
+('Matthew McConaughey', '1969-11-04', 'matthew@example.com', 'United States'),
+('Scarlett Johansson', '1984-11-22', 'scarlett@example.com', 'United States'),
+('David Fincher', '1962-08-28', 'fincher@example.com', 'United States');
+
+INSERT INTO Movie (title, year, genre, score) VALUES
+('Inception', 2010, 'Science Fiction', 8),
+('Pulp Fiction', 1994, 'Crime', 7),
+('The Wolf of Wall Street', 2013, 'Biography', 9),
+('La La Land', 2016, 'Musical', 6),
+('Interstellar', 2014, 'Science Fiction', 10),
+('Black Swan', 2010, 'Drama', 8),
+('Gladiator', 2000, 'Action', 9),
+('The Social Network', 2010, 'Drama', 5),
+('Fight Club', 1999, 'Drama', 7),
+('The Revenant', 2015, 'Adventure', 6);
+
+INSERT INTO Writer (person_id, movie_id) VALUES
+(1, 1),  -- Christopher Nolan for Inception
+(2, 2),  -- Quentin Tarantino for Pulp Fiction
+(1, 5),  -- Christopher Nolan for Interstellar
+(10, 8); -- David Fincher for The Social Network
+
+INSERT INTO Star (person_id, movie_id) VALUES
+(3, 1),  -- Leonardo DiCaprio in Inception
+(3, 3),  -- Leonardo DiCaprio in The Wolf of Wall Street
+(4, 4),  -- Emma Stone in La La Land
+(5, 3),  -- Martin Scorsese in The Wolf of Wall Street
+(6, 6),  -- Natalie Portman in Black Swan
+(8, 5),  -- Matthew McConaughey in Interstellar
+(9, 8);  -- Scarlett Johansson in The Social Network
+
+INSERT INTO Director (person_id, movie_id) VALUES
+(1, 1),  -- Christopher Nolan for Inception
+(2, 2),  -- Quentin Tarantino for Pulp Fiction
+(5, 3),  -- Martin Scorsese for The Wolf of Wall Street
+(1, 5),  -- Christopher Nolan for Interstellar
+(7, 7),  -- Ridley Scott for Gladiator
+(10, 8), -- David Fincher for The Social Network
+(10, 9); -- David Fincher for Fight Club
+
+
+		i. SELECT title, p.name FROM movie
+			LEFT JOIN director d 
+			ON movie.id = d.movie_id
+      		LEFT JOIN person p
+      		ON d.person_id = p.id
+			
+		ii. SELECT title, p.name as "director", pe.name as "star" FROM movie
+			LEFT JOIN star s
+     		ON movie.id = s.movie_id
+    		LEFT JOIN person pe
+     		ON s.person_id = pe.id
+    		LEFT JOIN director d
+    		ON movie.id = d.movie_id
+    		LEFT JOIN person p
+     		ON d.person_id = p.id
+			
+		iii. SELECT * FROM movie
+			LEFT JOIN director d
+			ON movie.id = d.movie_id
+			LEFT JOIN person p
+			ON d.person_id = p.id
+			WHERE p.country = 'United States'
+				
+		iv. SELECT DISTINCT title FROM movie
+			LEFT JOIN director d
+			ON movie.id = d.movie_id
+			LEFT JOIN person p
+			ON d.person_id = p.id
+			LEFT JOIN writer w
+			ON movie.id = w.movie_id
+			LEFT JOIN person pe
+			ON w.person_id = pe.id
+			WHERE  pe.name = p.name
+
+
+		v. SELECT * FROM movie
+			LEFT JOIN director d
+			ON movie.id = d.movie_id
+			WHERE score > 7
+
+
+
+Extension 3:
+
+CREATE table actor(
+	id serial primary key,
+	person_id integer
+);
+CREATE table casts(
+	id serial primary key,
+  	actor_id integer,
+	star_id integer,
+	movie_id integer
+);
+
+	ALTER table casts
+	ADD CONSTRAINT movie_fk FOREIGN KEY(movie_id) REFERENCES movie(id),
+	ADD CONSTRAINT star_fk FOREIGN KEY(star_id) REFERENCES star(id),
+	ADD CONSTRAINT actor_fk FOREIGN KEY(actor_id) REFERENCES actor(id)
+
+	ALTER table actor
+ 	ADD CONSTRAINT person_fk FOREIGN KEY(person_id) REFERENCES person(id),
+
+
+
+	-- Inserting new actors into the Person table
+INSERT INTO Person (name, birth, email, country) VALUES
+('Tom Hardy', '1977-09-15', 'tom@example.com', 'United Kingdom'),
+('Jessica Chastain', '1977-03-24', 'jessica@example.com', 'United States'),
+('Joseph Gordon-Levitt', '1981-02-17', 'joseph@example.com', 'United States'),
+('Brad Pitt', '1963-12-18', 'brad@example.com', 'United States'),
+('Amy Adams', '1974-08-20', 'amy@example.com', 'United States'),
+('Javier Bardem', '1969-03-01', 'javier@example.com', 'Spain');
+
+-- Populating the actor table with new supporting actors
+INSERT INTO actor (cast_id, person_id) VALUES
+(8, 11),  -- Tom Hardy (supporting actor, Inception cast)
+(9, 12),  -- Jessica Chastain (supporting actor, Interstellar cast)
+(10, 13), -- Joseph Gordon-Levitt (supporting actor, Inception cast)
+(11, 14), -- Brad Pitt (supporting actor, The Revenant cast)
+(12, 15), -- Amy Adams (supporting actor, The Social Network cast)
+(13, 16); -- Javier Bardem (supporting actor, No specific movie)
+
+-- Populating the casts table with new actors
+INSERT INTO casts (actor_id, star_id, movie_id) VALUES
+(8, NULL, 1),  -- Tom Hardy as a supporting actor in Inception (movie_id 1)
+(9, NULL, 5),  -- Jessica Chastain as a supporting actor in Interstellar (movie_id 5)
+(10, NULL, 1), -- Joseph Gordon-Levitt as a supporting actor in Inception (movie_id 1)
+(11, NULL, 10), -- Brad Pitt as a supporting actor in The Revenant (movie_id 10)
+(12, NULL, 8), -- Amy Adams as a supporting actor in The Social Network (movie_id 8)
+
+
+
+
+
+
+
+
 
